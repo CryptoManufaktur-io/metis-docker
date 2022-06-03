@@ -1,0 +1,32 @@
+version: "3.4"
+
+services:
+  l2geth:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.metis-l2geth.service=metis-l2geth
+      - traefik.http.routers.metis-l2geth.entrypoints=websecure
+      - traefik.http.routers.metis-l2geth.rule=Host(`${L2GETH_HOST}.${DOMAIN}`)
+      - traefik.http.routers.metis-l2geth.tls.certresolver=letsencrypt
+      - traefik.http.routers.metis-l2gethlb.service=l2geth
+      - traefik.http.routers.metis-l2gethlb.entrypoints=websecure
+      - traefik.http.routers.metis-l2gethlb.rule=Host(`${L2GETH_LB}.${DOMAIN}`)
+      - traefik.http.routers.metis-l2gethlb.tls.certresolver=letsencrypt
+      - traefik.http.services.metis-l2geth.loadbalancer.server.port=8545
+      - traefik.http.routers.metis-l2gethws.service=metis-l2gethws
+      - traefik.http.routers.metis-l2gethws.entrypoints=websecure
+      - traefik.http.routers.metis-l2gethws.rule=Host(`${L2GETH_WS_HOST}.${DOMAIN}`)
+      - traefik.http.routers.metis-l2gethws.tls.certresolver=letsencrypt
+      - traefik.http.routers.metis-l2gethwslb.service=metis-l2gethws
+      - traefik.http.routers.metis-l2gethwslb.entrypoints=websecure
+      - traefik.http.routers.metis-l2gethwslb.rule=Host(`${L2GETH_WS_LB}.${DOMAIN}`)
+      - traefik.http.routers.metis-l2gethwslb.tls.certresolver=letsencrypt
+      - traefik.http.services.metis-l2gethws.loadbalancer.server.port=8546
+  replica-healthcheck:
+    labels:
+       - traefik.enable=true
+       - traefik.http.routers.metis-l2gethhealth.service=metis-l2gethhealth
+       - traefik.http.routers.metis-l2gethhealth.entrypoints=websecure
+       - traefik.http.routers.metis-l2gethhealth.rule=Host(`${L2GETH_HEALTH_HOST}.${DOMAIN}`)
+       - traefik.http.routers.metis-l2gethhealth.tls.certresolver=letsencrypt
+       - traefik.http.services.metis-l2gethhealth.loadbalancer.server.port=7300

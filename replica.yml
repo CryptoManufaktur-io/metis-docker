@@ -1,14 +1,20 @@
-version: "3"
+version: "3.4"
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 100m
+      max-file: "3"
 
 services:
   dtl:
     image: metisdao/mvm-andromeda:dtl
     entrypoint: ./dtl.sh
-    restart: unless-stopped
+    restart: ${RESTART}
     stop_grace_period: 30s
     environment:
       URL: https://metis-us-east-2-mainnet-json.s3.us-east-2.amazonaws.com/addresses.json
-      DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT: CHANGE TO YOUR L1 RPC ENDPOINT
+      DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT: ${DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT}
       DATA_TRANSPORT_LAYER__L2_RPC_ENDPOINT: "https://andromeda.metis.io/?owner=1088"
       DATA_TRANSPORT_LAYER__SYNC_FROM_L1: "false"
       DATA_TRANSPORT_LAYER__SYNC_FROM_L2: "true"
@@ -24,17 +30,13 @@ services:
     expose:
       - 7878
     volumes:
-      - $PWD/chaindata/dtl:/data
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "2m"
-        max-file: "10"
+      - dtl-data:/data
+    <<: *logging
 
   l2geth:
     image: metisdao/mvm-andromeda:l2geth-replica
     entrypoint: sh ./geth.sh
-    restart: unless-stopped
+    restart: ${RESTART}
     stop_grace_period: 2m
     env_file:
       - ./geth.env
@@ -47,13 +49,19 @@ services:
       ETH1_CTC_DEPLOYMENT_HEIGHT: 13626959
       EMERGENCY_FORK020222_NUMBER: 750000
     volumes:
-      - $PWD/chaindata/l2geth:/root/.ethereum
+      - l2geth-data:/root/.ethereum
       - $PWD/geth.sh:/geth.sh
-    ports:
-      - 8546:8546
-      - 8545:8545
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "2m"
-        max-file: "10"
+    <<: *logging
+
+  replica-healthcheck:
+    image: ethereumoptimism/replica-healthcheck:${HC_IMAGE_TAG:-latest}
+    restart: ${RESTART}
+    environment:
+      HEALTHCHECK__REFERENCE_RPC_PROVIDER: ${HEALTHCHECK__REFERENCE_RPC_PROVIDER}
+      HEALTHCHECK__TARGET_RPC_PROVIDER: ${HEALTHCHECK__TARGET_RPC_PROVIDER}
+      REPLICA_HEALTHCHECK__ETH_NETWORK: ${REPLICA_HEALTHCHECK__ETH_NETWORK}
+    <<: *logging
+
+volumes:
+  dtl-data:
+  l2geth-data:
