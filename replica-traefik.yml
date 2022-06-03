@@ -22,7 +22,7 @@ services:
       - traefik.http.routers.metis-l2gethwslb.rule=Host(`${L2GETH_WS_LB}.${DOMAIN}`)
       - traefik.http.routers.metis-l2gethwslb.tls.certresolver=letsencrypt
       - traefik.http.services.metis-l2gethws.loadbalancer.server.port=8546
-  replica-healthcheck:
+  metis-replica-healthcheck:
     labels:
        - traefik.enable=true
        - traefik.http.routers.metis-l2gethhealth.service=metis-l2gethhealth

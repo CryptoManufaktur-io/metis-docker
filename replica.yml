@@ -53,7 +53,7 @@ services:
       - $PWD/geth.sh:/geth.sh
     <<: *logging
 
-  replica-healthcheck:
+  metis-replica-healthcheck:
     image: ethereumoptimism/replica-healthcheck:${HC_IMAGE_TAG:-latest}
     restart: ${RESTART}
     environment:
