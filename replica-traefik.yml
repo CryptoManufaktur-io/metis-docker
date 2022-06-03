@@ -8,7 +8,7 @@ services:
       - traefik.http.routers.metis-l2geth.entrypoints=websecure
       - traefik.http.routers.metis-l2geth.rule=Host(`${L2GETH_HOST}.${DOMAIN}`)
       - traefik.http.routers.metis-l2geth.tls.certresolver=letsencrypt
-      - traefik.http.routers.metis-l2gethlb.service=l2geth
+      - traefik.http.routers.metis-l2gethlb.service=metis-l2geth
       - traefik.http.routers.metis-l2gethlb.entrypoints=websecure
       - traefik.http.routers.metis-l2gethlb.rule=Host(`${L2GETH_LB}.${DOMAIN}`)
       - traefik.http.routers.metis-l2gethlb.tls.certresolver=letsencrypt
