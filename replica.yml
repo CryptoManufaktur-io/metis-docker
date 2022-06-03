@@ -42,6 +42,7 @@ services:
       - ./geth.env
     environment:
       GCMODE: ${GCMODE}
+      VERBOSITY: ${VERBOSITY}
       ROLLUP_BACKEND: "l2"
       URL: https://metis-us-east-2-mainnet-json.s3.us-east-2.amazonaws.com/addresses.json
       L2GETH_GENESIS_URL: https://metis-us-east-2-mainnet-json.s3.us-east-2.amazonaws.com/state-dump.latest.json
