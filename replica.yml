@@ -8,7 +8,7 @@ x-logging: &logging
 
 services:
   dtl:
-    image: metisdao/mvm-andromeda:dtl
+    image: metisdao/mvm-andromeda:${DTL_IMAGE_TAG:-dtl}
     entrypoint: ./dtl.sh
     restart: ${RESTART}
     stop_grace_period: 30s
@@ -34,7 +34,7 @@ services:
     <<: *logging
 
   l2geth:
-    image: metisdao/mvm-andromeda:l2geth-replica
+    image: metisdao/mvm-andromeda:${L2GETH_IMAGE_TAG:-l2geth-replica}
     entrypoint: sh ./geth.sh
     restart: ${RESTART}
     stop_grace_period: 2m
