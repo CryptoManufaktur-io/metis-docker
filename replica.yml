@@ -54,7 +54,7 @@ services:
       TARGET_GAS_LIMIT: 1100000000
     volumes:
       - l2geth-data:/root/.ethereum
-      - $PWD/scripts/geth.sh:/geth.sh
+      - $PWD/scripts/geth.sh:/scripts/geth.sh
     <<: *logging
 
   metis-replica-healthcheck:
