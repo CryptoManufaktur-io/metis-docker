@@ -59,7 +59,7 @@ services:
 
   metis-replica-healthcheck:
     image: ethereumoptimism/replica-healthcheck:${HC_IMAGE_TAG:-latest}
-    restart: ${RESTART}
+    restart: unless-stopped
     environment:
       HEALTHCHECK__REFERENCE_RPC_PROVIDER: ${HEALTHCHECK__REFERENCE_RPC_PROVIDER}
       HEALTHCHECK__TARGET_RPC_PROVIDER: ${HEALTHCHECK__TARGET_RPC_PROVIDER}
