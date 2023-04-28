@@ -9,8 +9,7 @@ x-logging: &logging
 services:
   dtl:
     image: metisdao/mvm-andromeda:${DTL_IMAGE_TAG:-dtl}
-    entrypoint: ./dtl.sh
-    restart: ${RESTART}
+    restart: unless-stopped
     stop_grace_period: 30s
     environment:
       URL: https://metis-us-east-2-mainnet-json.s3.us-east-2.amazonaws.com/addresses.json
@@ -34,23 +33,25 @@ services:
     <<: *logging
 
   l2geth:
-    image: metisdao/mvm-andromeda:${L2GETH_IMAGE_TAG:-l2geth-replica}
-    entrypoint: sh ./geth.sh
-    restart: ${RESTART}
+    image: metisdao/l2geth:${L2GETH_IMAGE_TAG:-latest}
+    entrypoint: [ "sh", "/scripts/geth.sh" ]
+    restart: unless-stopped
     stop_grace_period: 2m
     env_file:
       - ./geth.env
     environment:
       GCMODE: ${GCMODE}
       VERBOSITY: ${VERBOSITY}
-      ROLLUP_BACKEND: "l2"
+      ROLLUP_BACKEND: l2
       URL: https://metis-us-east-2-mainnet-json.s3.us-east-2.amazonaws.com/addresses.json
       L2GETH_GENESIS_URL: https://metis-us-east-2-mainnet-json.s3.us-east-2.amazonaws.com/state-dump.latest.json
       ROLLUP_CLIENT_HTTP: http://dtl:7878
       L2_URL: https://andromeda.metis.io/?owner=1088
       SEQUENCER_CLIENT_HTTP: https://andromeda.metis.io/?owner=1088
       ETH1_CTC_DEPLOYMENT_HEIGHT: 13626959
-      EMERGENCY_FORK020222_NUMBER: 750000
+      CHAIN_ID: 1088
+      NETWORK_ID: 1088
+      TARGET_GAS_LIMIT: 1100000000
     volumes:
       - l2geth-data:/root/.ethereum
       - $PWD/geth.sh:/geth.sh
