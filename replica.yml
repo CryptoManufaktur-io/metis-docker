@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 30s
     environment:
-      URL: https://metis-us-east-2-mainnet-json.s3.us-east-2.amazonaws.com/addresses.json
+      URL: https://ericlee42.github.io/metis-networks/mainnet/addresses.json
       DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT: ${DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT}
       DATA_TRANSPORT_LAYER__L2_RPC_ENDPOINT: "https://andromeda.metis.io/?owner=1088"
       DATA_TRANSPORT_LAYER__SYNC_FROM_L1: "false"
@@ -30,6 +30,11 @@ services:
       - 7878
     volumes:
       - dtl-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://127.0.0.1:7878"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
     <<: *logging
 
   l2geth:
@@ -39,12 +44,15 @@ services:
     stop_grace_period: 2m
     env_file:
       - ./geth.env
+    depends_on:
+      dtl:
+        condition: service_healthy
     environment:
       GCMODE: ${GCMODE}
       VERBOSITY: ${VERBOSITY}
       ROLLUP_BACKEND: l2
-      URL: https://metis-us-east-2-mainnet-json.s3.us-east-2.amazonaws.com/addresses.json
-      L2GETH_GENESIS_URL: https://metis-us-east-2-mainnet-json.s3.us-east-2.amazonaws.com/state-dump.latest.json
+      URL: https://ericlee42.github.io/metis-networks/mainnet/addresses.json
+      L2GETH_GENESIS_URL: https://ericlee42.github.io/metis-networks/mainnet/state-dump.latest.json
       ROLLUP_CLIENT_HTTP: http://dtl:7878
       L2_URL: https://andromeda.metis.io/?owner=1088
       SEQUENCER_CLIENT_HTTP: https://andromeda.metis.io/?owner=1088
