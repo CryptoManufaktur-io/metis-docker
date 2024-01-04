@@ -47,7 +47,7 @@ else
     echo -n "$BLOCK_SIGNER_PRIVATE_KEY_PASSWORD" >"$DATADIR"/password
     echo -n "$BLOCK_SIGNER_PRIVATE_KEY" >"$DATADIR"/block-signer-key
     geth account import \
-        --datadir=/"$DATADIR" \
+        --datadir "$DATADIR" \
         --password "$DATADIR"/password \
         "$DATADIR"/block-signer-key
 fi
@@ -55,15 +55,13 @@ fi
 echo "l2geth setup complete"
 
 # start the geth peer node
-echo "Starting Geth peer node"
+echo "Starting Geth replica node"
 exec geth \
     --datadir "$DATADIR" \
-    --verbosity="$VERBOSITY" \
+    --verbosity "$VERBOSITY" \
     --password "$DATADIR/password" \
     --allow-insecure-unlock \
     --unlock $BLOCK_SIGNER_ADDRESS \
     --mine \
     --miner.etherbase $BLOCK_SIGNER_ADDRESS \
-    --syncmode full \
-    --gcmode archive \
     "$@"
