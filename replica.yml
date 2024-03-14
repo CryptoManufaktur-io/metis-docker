@@ -7,7 +7,7 @@ x-logging: &logging
 
 services:
   l1dtl:
-    image: ericlee/metis:${DTL_IMAGE_TAG:-dtl-3}
+    image: ericlee42/metis:${DTL_IMAGE_TAG:-dtl-3}
     restart: unless-stopped
     stop_grace_period: 30s
     volumes:
@@ -24,7 +24,7 @@ services:
     <<: *logging
 
   l2geth:
-    image: ericlee/metis:${L2GETH_IMAGE_TAG:-l2geth-5}
+    image: ericlee42/metis:${L2GETH_IMAGE_TAG:-l2geth-5}
     restart: unless-stopped
     stop_grace_period: 2m
     env_file:
