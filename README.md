@@ -1,3 +1,10 @@
+# Overview
+
+Adjusted to work with central-proxy-docker
+
+`cp default.env .env`, adjust the L1 RPC to your own Ethereum node, and `docker compose up -d`
+
+# Original README
 # Metis Replica Node
 
 Replica node is using P2P now.
