@@ -4,6 +4,8 @@ Adjusted to work with central-proxy-docker
 
 `cp default.env .env`, adjust the L1 RPC to your own Ethereum node, and `docker compose up -d`
 
+This is Metis Docker v1.0.0
+
 # Original README
 # Metis Replica Node
 
