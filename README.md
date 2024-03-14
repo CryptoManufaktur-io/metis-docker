@@ -1,22 +1,22 @@
 # Metis Replica Node
 
-It retrives data from L2 nodes, and no blocks lag behind.
+Replica node is using P2P now.
 
 # Prerequisite
 
 - Linux(x86_64)
 - docker
 - docker-compose v2
+- Ethereum node with full eth_getLogs history. Need not be an archive node
 
 ## Recommended hardware specification
 
-RAM: 8 GB
-
-CPU: 4 core(x86_64)
-
-Storage: Minimum 200GB SSD (make sure it is extendable)
+AWS c5.2xlarge
+gp3 with 200 MB/s throughput
 
 # Setup a replica node
+
+If you want to upgrade from the legacy replica node, please refer to this documentation.
 
 ## clone the repository
 
@@ -30,153 +30,125 @@ git clone https://github.com/ericlee42/metis-replica-node
 cp docker-compose-mainnet.yml docker-compose.yml
 ```
 
-if you want to use testnet, you can use `docker-compose-testnet.yml` file.
+Most configurations can be set through environment variables, please refer to [config.md](./config.md) for details.
 
-**Optional: change volumes**
-
-By default, replica node creates a `chaindata` directory in the current directory. You can change the volumes configuration in your compose file to customize the storage directory.
-
-## start the dtl service
+Add your eth rpc to the `.env` file
 
 ```
-docker-compose up -d dtl
+DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT=https://eth-node-example.com
 ```
 
-If you get this log below, it means the start-up was successful
+**Optional: Archive mode**
 
-```conosle
-$ docker-compose logs --tail=10 dtl
-{"level":30,"time":1640763281396,"msg":"Service L1_Data_Transport_Service is starting..."}
-{"level":30,"time":1640763281400,"msg":"Service L1_Data_Transport_Service is initializing..."}
-{"level":30,"time":1640763281400,"msg":"Initializing L1 Data Transport Service..."}
-{"level":30,"time":1640763281470,"msg":"Service L1_Transport_Server is initializing..."}
-{"level":30,"time":1640763281486,"defaultBackend":"l1","l1GasPriceBackend":"l1","msg":"HTTP Server Options"}
-{"level":30,"time":1640763281487,"url":"YOUR_L1_RPC_ENDPOINT","msg":"HTTP Server L1 RPC Provider initialized"}
-{"level":30,"time":1640763281487,"url":"https://andromeda.metis.io/?owner=1088","msg":"HTTP Server L2 RPC Provider initialized"}
-{"level":30,"time":1640763281487,"msg":"Service L1_Transport_Server has initialized."}
-{"level":30,"time":1640763281488,"msg":"Service L2_Ingestion_Service is initializing..."}
-{"level":30,"time":1640763281489,"msg":"Service L2_Ingestion_Service has initialized."}
-{"level":30,"time":1640763281490,"msg":"Service L1_Data_Transport_Service has initialized."}
-{"level":30,"time":1640763281490,"msg":"Service L1_Transport_Server is starting..."}
-{"level":30,"time":1640763281491,"msg":"Service L2_Ingestion_Service is starting..."}
-{"level":30,"time":1640763281496,"host":"0.0.0.0","port":7878,"msg":"Server started and listening"}
-{"level":30,"time":1640763281499,"msg":"Service L1_Transport_Server can stop now"}
-{"level":30,"time":1640763283225,"fromBlock":0,"toBlock":1001,"msg":"Synchronizing unconfirmed transactions from Layer 2 (Metis)"}
-```
-
-## start the l2geth service
-
-```sh
-docker-compose up -d l2geth
-```
-
-If you get this log below, it means the start-up was successful
-
-```console
-$ docker-compose logs --tail=10 l2geth
-DEBUG[12-29|07:37:22.445] Allowed origin(s) for WS RPC interface [*]
-INFO [12-29|07:37:22.445] WebSocket endpoint opened                url=ws://[::]:8546
-INFO [12-29|07:37:23.259] Unlocked account                         address=0x00000398232E2064F896018496b4b44b3D62751F
-INFO [12-29|07:37:23.259] Transaction pool price threshold updated price=0
-INFO [12-29|07:37:23.259] Transaction pool price threshold updated price=0
-INFO [12-29|07:37:23.259] Initializing Sync Service
-INFO [12-29|07:37:23.260] Sealing paused, waiting for transactions
-INFO [12-29|07:37:23.260] Set L2 Gas Price                         gasprice=40000000000
-INFO [12-29|07:37:23.261] Set L1 Gas Price                         gasprice=150000000000
-INFO [12-29|07:37:23.261] Set batch overhead                       overhead=2750
-INFO [12-29|07:37:23.261] Set scalar                               scalar=40
-INFO [12-29|07:37:23.261] Starting Verifier Loop                   poll-interval=15s timestamp-refresh-threshold=5m0s
-INFO [12-29|07:37:23.391] Syncing transaction range                start=0 end=89000 backend=l2
-DEBUG[12-29|07:37:24.528] Couldn't add port mapping                proto=tcp extport=30303 intport=30303 interface="UPnP or NAT-PMP" err="no UPnP or NAT-PMP router discovered"
-INFO [12-29|07:37:38.274] Syncing transaction range                start=0 end=91100 backend=l2
-INFO [12-29|07:37:53.248] Syncing transaction range                start=0 end=92923 backend=l2
-INFO [12-29|07:38:08.247] Syncing transaction range                start=0 end=92923 backend=l2
-INFO [12-29|07:38:23.231] Syncing transaction range                start=0 end=92924 backend=l2
-INFO [12-29|07:38:38.224] Syncing transaction range                start=0 end=92926 backend=l2
-```
-
-## RPC example
-
-```console
-$ # get chain id
-$ curl --data-raw '{
-    "id":"1",
-    "jsonrpc":"2.0",
-    "method":"eth_chainId",
-    "params":[]
-}' -H 'Content-Type: application/json'  'http://localhost:8545'
-{
-    "jsonrpc":"2.0",
-    "id":"1",
-    "result":"0x440"
-}
-$ # get block by block number
-$ curl --data-raw '{
-    "id":"1",
-    "jsonrpc":"2.0",
-    "method":"eth_getBlockByNumber",
-    "params":[
-        "latest",
-        false
-    ]
-}' -H 'Content-Type: application/json'  'http://localhost:8545'
-{
-    "jsonrpc":"2.0",
-    "id":"1",
-    "result":{
-        "difficulty":"0x1",
-        "extraData":"0x000000000000000000000000000000000000000000000000000000000000000000000398232e2064f896018496b4b44b3d62751f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-        "gasLimit":"0x4190ab00",
-        "gasUsed":"0x0",
-        "hash":"0x9e3354e081a54a57190bdb8948a597c840ea5dd496b0322864d4585f4a716892",
-        "logsBloom":"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-        "miner":"0x0000000000000000000000000000000000000000",
-        "mixHash":"0x0000000000000000000000000000000000000000000000000000000000000000",
-        "nonce":"0x0000000000000000",
-        "number":"0x0",
-        "parentHash":"0x0000000000000000000000000000000000000000000000000000000000000000",
-        "receiptsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-        "sha3Uncles":"0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-        "size":"0x26f",
-        "stateRoot":"0x86c9b145f467994ffb6b07274d02bf7bb302a7caac27a97823e1c9f456e3c1e3",
-        "timestamp":"0x0",
-        "totalDifficulty":"0x1",
-        "transactions":[],
-        "transactionsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-        "uncles":[]
-    }
-}
-$ # Send a raw trasaction
-$ curl --data-raw '{
-    "id":"1",
-    "jsonrpc":"2.0",
-    "method":"eth_sendRawTransaction",
-    "params":[
-        "0xf86f81eb8503f5476a00825208940f8b20ed4eecf06eee385f837c94966ba5d800318819ac8532c2790000808208a3a0cde205bfcce3c47687362fbbf3a8c83ecb80c419b4fa751334e17db0a06a4010a0459c4b067ca808046fa8f61211d4876eec9394abcfeeb8e73eb4193f15368acf"
-    ]
-}' -H 'Content-Type: application/json' 'http://localhost:8545'
-```
-
-## Enable graphql service
+if you need an archive node, you can add following environment variables to l2geth service.
 
 ```yaml
 l2geth:
-  entrypoint: ["sh", "/scripts/geth.sh"]
-  command:
-    - --graphql
-    - --graphql.addr=0.0.0.0
-    - --graphql.port=8547
-    - --graphql.corsdomain=*
-    - --graphql.vhosts=*
-  ports:
-    - 8547:8547
+  environment:
+    GCMODE: archive
+    # enable debug api if you need it
+    RPC_API: eth,net,web3,debug
+    WS_API: eth,net,web3,debug
 ```
 
-You can follow these steps to place the above code in docker-compose.yml:
+**Optional: change volumes**
 
-1. Clone the metis-replica-node repository to your local machine.
-2. Navigate to the root directory of the repository.
-3. Open the docker-compose.yml file in a text editor.
-4. Find the l2geth section in the file, which should be under the services section.
-5. Place the code block you provided under the l2geth section. Make sure to align it with the entrypoint and command sections.
-6. Save the docker-compose.yml file.
+By default, replica node creates a `chaindata` directory in the current directory.
+
+You can change the volumes configuration in your compose file to customize the storage directory.
+
+```yaml
+# redacted
+services:
+  dtl:
+    volumes:
+      - ./chaindata/dtl:/data # the volume mapping for dtl
+
+  l2geth:
+    volumes:
+      - ./chaindata/l2geth:/root/.ethereum # the volume mapping for l2geth
+      - ./scripts:/scripts
+```
+
+## Start the services
+
+```console
+$ docker compose up -d
+```
+
+It means the start-up was successful if you see the both services are healthy.
+
+```console
+$ docker compose ps
+NAME                          IMAGE                                          COMMAND                 SERVICE   CREATED              STATUS                        PORTS
+metis-replica-node-dtl-1      metisdao/data-transport-layer:20230713210754   "./dtl.sh"              dtl       About a minute ago   Up About a minute (healthy)   7878/tcp
+metis-replica-node-l2geth-1   metisdao/l2geth:20230713220744                 "sh /scripts/geth.sh"   l2geth    About a minute ago   Up 57 seconds (healthy)       0.0.0.0:8545-8546->8545-8546/tcp, 8547/tcp
+```
+
+## Check syncing status
+
+You can't use `eth_syncing` to check if the node is fully synchronized.
+
+You can compare the block number of the local l2geth with the block number of our public node to determine whether the local service has been synchronized.
+
+If they are equal, which means that your l2geth has synchronized.
+
+```console
+$ curl -sS 'http://localhost:8545' --data-raw '{"id":"1","jsonrpc":"2.0","method":"eth_blockNumber","params":[]}' -H 'Content-Type: application/json'  | jq -r '.result' | xargs printf '%d\n'
+26510
+$ curl -sS 'https://andromeda.metis.io' --data-raw '{"id":"1","jsonrpc":"2.0","method":"eth_blockNumber","params":[]}' -H 'Content-Type: application/json'  | jq -r '.result' | xargs printf '%d\n'
+9612875
+```
+
+## Upgrade from legacy replica node
+
+1. Prepre an ETH L1 node without history prune
+
+Not an archive node, but transaction and event logs should be retained
+
+Why?
+
+Since we use p2p to setup a node, you can't trust your peers.
+
+Many transactions, for example, deposits from L1, you can't verify them from p2p.
+
+so it's a security consideration.
+
+If you use your self maintained go-ethereum client
+
+please don't set very high value for following key, 100 is recommended value.
+
+if you use rpc from a third party, the value can set very high like 100k due to they have optimized for the queries.
+
+```
+DATA_TRANSPORT_LAYER__LOGS_PER_POLLING_INTERVAL=100
+DATA_TRANSPORT_LAYER__TRANSACTIONS_PER_POLLING_INTERVAL=100
+```
+
+2. Delete configurations for legacy replica node
+
+```
+$ rm -rf ./chaindata/l2geth/keystore
+```
+
+3. Update compose file and env
+
+## Quick start from snapshots
+
+We provided public aws ebs snapshot for you if you need them.
+
+l1dtl
+
+snap-048e442e36aac56d2
+
+archived l2geth
+
+snap-040e6cd4c9a877911
+
+You can use the snapshots on aws us-east-1 region, and copy them to another region.
+
+You need to delete the nodekey to enable p2p connections
+
+```
+$ rm -rf ./chaindata/l2geth/geth/nodeky
+```
