@@ -26,7 +26,7 @@ services:
   l2geth:
     image: ericlee42/metis:${L2GETH_IMAGE_TAG:-l2geth-5}
     restart: unless-stopped
-    stop_grace_period: 2m
+    stop_grace_period: 5m
     env_file:
       - ./l2geth.env
     depends_on:
