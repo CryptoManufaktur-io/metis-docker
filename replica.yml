@@ -38,7 +38,11 @@ services:
       timeout: 3s
       retries: 6
     environment:
-      VERBOSITY: ${VERBOSITY}
+      VERBOSITY: ${VERBOSITY:-3}
+      PORT: ${L2GETH_P2P_PORT:-30303}
+    ports:
+      - ${L2GETH_P2P_PORT:-30303}:${L2GETH_P2P_PORT:-30303}/udp
+      - ${L2GETH_P2P_PORT:-30303}:${L2GETH_P2P_PORT:-30303}/tcp
     volumes:
       - l2geth-data:/root/.ethereum
     <<: *logging
