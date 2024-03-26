@@ -21,7 +21,7 @@ services:
   l1dtl:
     image: metisdao/dtl:${DTL_IMAGE_TAG:-latest}
     restart: unless-stopped
-    stop_grace_period: 30s
+    stop_grace_period: 5m
     volumes:
       - l1dtl-data:/data
     env_file:
