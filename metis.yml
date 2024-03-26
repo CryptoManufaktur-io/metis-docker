@@ -7,6 +7,17 @@ x-logging: &logging
       tag: '{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'
 
 services:
+  init:
+    restart: "no"
+    build:
+      context: ./init
+      dockerfile: Dockerfile
+    image: init:metis
+    pull_policy: never
+    environment:
+      - SNAPSHOT=${SNAPSHOT}
+      - DTL_SNAPSHOT=${DTL_SNAPSHOT}
+
   l1dtl:
     image: metisdao/dtl:${DTL_IMAGE_TAG:-latest}
     restart: unless-stopped
@@ -17,6 +28,9 @@ services:
       - ./l1dtl.env
     environment:
       - DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT=${DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT}
+    depends_on:
+      init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "curl http://127.0.0.1:7878"]
       interval: 5s
@@ -33,6 +47,8 @@ services:
     depends_on:
       l1dtl:
         condition: service_healthy
+      init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "is-l2geth-stalled"]
       interval: 10s

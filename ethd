@@ -423,7 +423,7 @@ envmigrate() {
     ALL_VARS=( COMPOSE_FILE DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT HEALTHCHECK__REFERENCE_RPC_PROVIDER \
             HEALTHCHECK__TARGET_RPC_PROVIDER REPLICA_HEALTHCHECK__ETH_NETWORK HC_IMAGE_TAG DTL_IMAGE_TAG \
             L2GETH_IMAGE_TAG VERBOSITY DOMAIN L2GETH_HOST L2GETH_LB L2GETH_WS_HOST L2GETH_WS_LB L2GETH_HEALTH_HOST \
-            L2GETH_P2P_PORT )
+            L2GETH_P2P_PORT DTL_SNAPSHOT SNAPSHOT )
     OLD_VARS=( )
     NEW_VARS=( )
 
@@ -444,17 +444,7 @@ envmigrate() {
     __adjust_NETWORK=""
     for var in "${ALL_VARS[@]}"; do
         value=$(sed -n -e "s/^${var}=\(.*\)/\1/p" "${ENV_FILE}.source" || true)
-        if [ -n "${value}" ] || [ "${var}" = "EXTRA_STATIC_NODES" ] || [ "${var}" = "SNAPSHOT" ]; then
-            # For goerli and mainnet, we mean op-goerli and op-mainnet
-            if [[ "${var}" = "NETWORK" && ( "${value}" = "goerli" || "${value}" = "mainnet" ) ]]; then
-                __adjust_NETWORK="${value}"
-                value="op-${value}"
-            fi
-            # Coming from the original Optimism Docker, replace ${NETWORK} in strings with goerli or mainnet
-            if [[ -n "${__adjust_NETWORK}" && ( "${var}" = "SNAPSHOT" || "${var}" = "SEQUENCER"
-                || "${var}" = "LEGACY_TAR" ) ]]; then
-                value="${value//\$\{NETWORK\}/${__adjust_NETWORK}}"
-            fi
+        if [ -n "${value}" ]; then
             sed -i'.original' -e "s~^\(${var}\s*=\s*\).*$~\1${value}~" "${ENV_FILE}"
         fi
     done
