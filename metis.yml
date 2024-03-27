@@ -14,6 +14,9 @@ services:
       dockerfile: Dockerfile
     image: init:metis
     pull_policy: never
+    volumes:
+      - l1dtl-data:/data
+      - l2geth-data:/root/.ethereum
     environment:
       - SNAPSHOT=${SNAPSHOT}
       - DTL_SNAPSHOT=${DTL_SNAPSHOT}

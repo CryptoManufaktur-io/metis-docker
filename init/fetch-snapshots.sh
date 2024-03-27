@@ -5,8 +5,8 @@ set -euo pipefail
 if [ -n "${SNAPSHOT}" ] && [ ! -d "/root/.ethereum/geth/chaindata/" ]; then
   __dont_rm=0
   mkdir -p /root/.ethereum/geth/
-  mkdir /tmp/snapshot
-  cd /tmp/snapshot
+  mkdir -p /root/.ethereum/snapshot
+  cd /root/.ethereum/snapshot
   eval "__url=${SNAPSHOT}"
   aria2c -c -x6 -s6 --auto-file-renaming=false --conditional-get=true --allow-overwrite=true "${__url}"
   filename=$(echo "${__url}" | awk -F/ '{print $NF}')
@@ -35,8 +35,8 @@ fi
 # Prep l1dtl datadir
 if [ -n "${DTL_SNAPSHOT}" ] && [ ! -d "/data/db/" ]; then
   __dont_rm=0
-  mkdir /tmp/snapshot
-  cd /tmp/snapshot
+  mkdir -p /data/snapshot
+  cd /data/snapshot
   eval "__url=${SNAPSHOT}"
   aria2c -c -x6 -s6 --auto-file-renaming=false --conditional-get=true --allow-overwrite=true "${__url}"
   filename=$(echo "${__url}" | awk -F/ '{print $NF}')
