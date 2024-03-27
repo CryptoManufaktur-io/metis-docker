@@ -37,7 +37,7 @@ if [ -n "${DTL_SNAPSHOT}" ] && [ ! -d "/data/db/" ]; then
   __dont_rm=0
   mkdir -p /data/snapshot
   cd /data/snapshot
-  eval "__url=${SNAPSHOT}"
+  eval "__url=${DTL_SNAPSHOT}"
   aria2c -c -x6 -s6 --auto-file-renaming=false --conditional-get=true --allow-overwrite=true "${__url}"
   filename=$(echo "${__url}" | awk -F/ '{print $NF}')
   if [[ "${filename}" =~ \.tar\.zst$ ]]; then
