@@ -10,4 +10,4 @@ The Ethereum node need not be an archive, but should have full eth_getLogs and t
 The l2geth needs to be `GCMODE=archive` if using the snapshot provided by Metis. `l2geth.env` sets it that way
 by default.
 
-This is Metis Docker v1.0.0
+This is Metis Docker v1.1.0
