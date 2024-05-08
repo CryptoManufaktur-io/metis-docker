@@ -66,6 +66,8 @@ services:
       - ${L2GETH_P2P_PORT:-30303}:${L2GETH_P2P_PORT:-30303}/tcp
     volumes:
       - l2geth-data:/root/.ethereum
+    command:
+      - --cache.noprefetch
     <<: *logging
     labels:
       - traefik.enable=true
