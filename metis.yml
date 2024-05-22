@@ -61,6 +61,7 @@ services:
     environment:
       VERBOSITY: ${VERBOSITY:-3}
       PORT: ${L2GETH_P2P_PORT:-30303}
+      GCMODE: ${GCMODE:-full}
     ports:
       - ${L2GETH_P2P_PORT:-30303}:${L2GETH_P2P_PORT:-30303}/udp
       - ${L2GETH_P2P_PORT:-30303}:${L2GETH_P2P_PORT:-30303}/tcp
