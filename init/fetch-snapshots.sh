@@ -27,6 +27,23 @@ if [ -n "${SNAPSHOT}" ] && [ ! -d "/root/.ethereum/geth/chaindata/" ]; then
   if [ "${__dont_rm}" -eq 0 ]; then
     rm -f "${filename}"
   fi
+
+  # try to find the directory
+  __search_dir="chaindata"
+  __base_dir="/root/.ethereum/"
+  __found_path=$(find "$__base_dir" -type d -path "*/$__search_dir" -print -quit)
+  if [ -n "$__found_path" ]; then
+    __geth_dir=$(dirname "$__found_path")
+    __geth_dir=${__geth_dir%/chaindata}
+    if [ "${__found_path}" = "${__base_dir}geth/chaindata" ]; then
+       echo "Snapshot extracted into ${__geth_dir}/chaindata"
+    else
+      echo "Found a geth directory at ${__geth_dir}, moving it."
+      mv "$__geth_dir"/* "$__base_dir"geth
+      rm -rf "$__geth_dir"
+    fi
+  fi
+
   if [[ ! -d /root/.ethereum/geth/chaindata ]]; then
     echo "Chaindata isn't in the expected location."
     echo "This snapshot likely won't work until the fetch script has been adjusted for it."
@@ -57,6 +74,23 @@ if [ -n "${DTL_SNAPSHOT}" ] && [ ! -d "/data/db/" ]; then
   if [ "${__dont_rm}" -eq 0 ]; then
     rm -f "${filename}"
   fi
+
+  # try to find the directory
+  __search_dir="db"
+  __base_dir="/data/"
+  __found_path=$(find "$__base_dir" -type d -path "*/$__search_dir" -print -quit)
+  if [ -n "$__found_path" ]; then
+    __dtl_dir=$(dirname "$__found_path")
+    __dtl_dir=${__dtl_dir%/db}
+    if [ "${__found_path}" = "${__base_dir}db" ]; then
+       echo "Snapshot extracted into ${__dtl_dir}/db"
+    else
+      echo "Found a dtl directory at ${__dtl_dir}/db, moving it."
+      mv "$__dtl_dir"/* "$__base_dir"
+      rm -rf "$__dtl_dir"
+    fi
+  fi
+
   if [[ ! -d /data/db ]]; then
     echo "DTL data isn't in the expected location."
     echo "This dtl snapshot likely won't work until the fetch script has been adjusted for it."
