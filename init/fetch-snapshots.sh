@@ -8,6 +8,7 @@ if [ -n "${SNAPSHOT}" ] && [ ! -d "/root/.ethereum/geth/chaindata/" ]; then
   mkdir -p /root/.ethereum/snapshot
   cd /root/.ethereum/snapshot
   eval "__url=${SNAPSHOT}"
+#shellcheck disable=SC2154
   aria2c -c -x6 -s6 --auto-file-renaming=false --conditional-get=true --allow-overwrite=true "${__url}"
   filename=$(echo "${__url}" | awk -F/ '{print $NF}')
   if [[ "${filename}" =~ \.tar\.zst$ ]]; then
