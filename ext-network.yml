@@ -1,3 +1,5 @@
+# Make the external Traefik network the only network. With a second internal network, Prometheus docker
+# service discovery only matches the first network (match_first_network), which Prometheus cannot reach.
 networks:
   default:
     name: ${DOCKER_EXT_NETWORK:-traefik_default}
