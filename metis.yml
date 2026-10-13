@@ -43,6 +43,12 @@ services:
       timeout: 3s
       retries: 6
     <<: *logging
+    labels:
+      - metrics.scrape=true
+      - metrics.path=/metrics
+      - metrics.port=7878
+      - metrics.instance=l1dtl
+      - metrics.network=metis
 
   l2geth:
     image: metisdao/l2geth:${L2GETH_IMAGE_TAG:-latest}
@@ -72,6 +78,11 @@ services:
       - l2geth-data:/root/.ethereum
     command:
       - --cache.noprefetch
+      # geth 1.9.10 serves Prometheus metrics at /debug/metrics/prometheus on the pprof server
+      - --metrics
+      - --pprof
+      - --pprofaddr=0.0.0.0
+      - --pprofport=${METRICS_PORT:-6060}
     <<: *logging
     labels:
       - traefik.enable=true
@@ -93,6 +104,11 @@ services:
       - traefik.http.routers.metis-l2gethwslb.rule=Host(`${L2GETH_WS_LB}.${DOMAIN}`)
       - traefik.http.routers.metis-l2gethwslb.tls.certresolver=letsencrypt
       - traefik.http.services.metis-l2gethws.loadbalancer.server.port=8546
+      - metrics.scrape=true
+      - metrics.path=/debug/metrics/prometheus
+      - metrics.port=${METRICS_PORT:-6060}
+      - metrics.instance=execution
+      - metrics.network=metis
 
   metis-replica-healthcheck:
     image: ethereumoptimism/replica-healthcheck:${HC_IMAGE_TAG:-latest}

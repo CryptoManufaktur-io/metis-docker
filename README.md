@@ -16,6 +16,19 @@ The Ethereum node need not be an archive, but should have full eth_getLogs and t
 If you are syncing l1dtl from scratch or an old snapshot, you may need an archive RPC during sync only, so that
 `eth_getBlockByNumber` succeeds.
 
+## Metrics
+
+Both l2geth and l1dtl carry the `metrics.*` labels that the Prometheus in [central-proxy-docker](https://github.com/CryptoManufaktur-io/central-proxy-docker)
+discovers. Use `:ext-network.yml` in `COMPOSE_FILE` so Prometheus can reach the containers. The ports are
+container-internal and not published.
+
+| Service | Port | Path |
+|---------|------|------|
+| l2geth | `METRICS_PORT` (6060) | `/debug/metrics/prometheus` (geth `--metrics --pprof`) |
+| l1dtl | 7878 | `/metrics` |
+
+To disable l2geth metrics, override its `command` in `custom.yml` without `--metrics`/`--pprof*`.
+
 `custom.yml` is not tracked by git and can be used to override anything in the provided `metis.yml`
 
 This is Metis Docker v1.2.0
